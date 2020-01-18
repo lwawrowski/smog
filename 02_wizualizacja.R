@@ -1,9 +1,15 @@
 library(tidyverse)
 
 # gioś
-ggplot(pm10_pszczyna, aes(x=data, y = pm10, color = przekroczenie)) +
+pm10_pszczyna %>% 
+  filter(!is.na(pm10)) %>% 
+  ggplot(aes(x=data, y = pm10, color = poziom)) +
   geom_point() +
-  geom_smooth()
+  scale_color_manual(values = c("#1a9850", "#fdae61", "#d73027", "#67001f"))
+
+pm10_pszczyna %>% 
+  filter(!is.na(pm10)) %>% 
+  count(rok, poziom)
 
 pm10_pszczyna %>% 
   group_by(rok, dzien_tyg) %>% 

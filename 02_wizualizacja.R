@@ -1,5 +1,8 @@
 library(tidyverse)
 
+load("data/pm10.RData")
+load("data/imgw.RData")
+
 # gioś
 pm10_pszczyna %>% 
   filter(!is.na(pm10)) %>% 
@@ -42,12 +45,14 @@ ggplot(pm10_imgw, aes(x=data, y=value, color=name)) +
   geom_point() +
   geom_smooth()
 
+# identyfikacja różnic
+
 pm10_imgw_std <- select(imgw_pszczyna, data, t2m_mean_daily) %>% 
   inner_join(., select(pm10_pszczyna, data, pm10)) %>% 
   mutate_if(is.numeric, scale) %>% 
   pivot_longer(-data)
 
 ggplot(pm10_imgw_std, aes(x=data, y=value, color=name)) +
-  geom_point() +
-  geom_smooth()
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = F, size = 2)
 

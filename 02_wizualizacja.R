@@ -133,6 +133,14 @@ ggplot(pm10_imgw_std, aes(x=data, y=value, color=name)) +
   theme(legend.position = "bottom",
         plot.caption = element_text(color = "grey80"))
 
+# holt-winters
+
+temp_ts <- ts(pm10_imgw_std$t2m_mean_daily, frequency = 359)
+
+temp_hw <- HoltWinters(temp_ts)
+plot(temp_hw$fitted)
+predict(temp_hw)
+
 # iloraz szans
 
 pm10_imgw_50 <- pm10_imgw %>% 

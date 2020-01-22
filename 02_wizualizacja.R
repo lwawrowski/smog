@@ -25,7 +25,7 @@ pm10_pszczyna %>%
   ggplot(aes(x = poziom, y = rok, fill = n)) +
   geom_tile() +
   geom_text(aes(label=n)) +
-  scale_fill_gradientn(colours = terrain.colors(4), name = "Liczba dni") +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(4, "RdYlGn") , name = "Liczba dni") +
   xlab("Poziom") +
   ylab("Rok") +
   ggtitle("Liczba dni w roku z danym poziomem stężenia pyłu PM10") +
@@ -42,7 +42,7 @@ pm10_pszczyna %>%
   ggplot(aes(x = poziom, y = rok, fill = proc)) +
   geom_tile() +
   geom_text(aes(label=proc)) +
-  scale_fill_gradientn(colours = terrain.colors(4), name = "Odsetek") +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(4, "RdYlGn"), name = "Odsetek") +
   xlab("Poziom") +
   ylab("Rok") +
   ggtitle("Odsetek dni w roku z danym poziomem stężenia pyłu PM10") +
@@ -69,7 +69,7 @@ ggplot(pm10_pszczyna, aes(x=rok, y=pm10, fill=kwartal)) +
   geom_boxplot() +
   scale_fill_discrete(name = "Kwartał") +
   xlab("Rok") +
-  ylab("Poziom PM10") +
+  ylab("Stężenie PM10") +
   ggtitle("Rozkład stężenia pyłu PM10 w ujęciu kwartalnym w latach 2015-2019") +
   labs(caption = "Łukasz Wawrowski - wawrowski.edu.pl") +
   theme_light() +
@@ -90,23 +90,48 @@ ggplot(imgw_pszczyna, aes(x=data, y=t2m_mean_daily)) +
 pm10_imgw <- select(imgw_pszczyna, data, t2m_mean_daily) %>% 
   inner_join(., select(pm10_pszczyna, data, pm10))
 
-ggplot(pm10_imgw, aes(x=pm10, y=t2m_mean_daily)) +
-  geom_point()
+ggplot(pm10_imgw, aes(y=pm10, x=t2m_mean_daily)) +
+  geom_point() +
+  xlab("Stężenie PM10") +
+  ylab("Średnia dobowa temperatura") +
+  ggtitle("Zależność pomiędzy stężeniem PM10 i średnią dobową temperaturą \nw latach 2015-2019") +
+  labs(caption = "Łukasz Wawrowski - wawrowski.edu.pl") +
+  theme_light() +
+  theme(plot.caption = element_text(color = "grey80"))
+
+cor.test(pm10_imgw$t2m_mean_daily, pm10_imgw$pm10, use = "complete.obs")
 
 pm10_imgw %>% 
   pivot_longer(-data) %>% 
+  mutate(name=factor(name, levels = c("pm10", "t2m_mean_daily"), labels = c("PM10", "Temperatura"))) %>% 
   ggplot(aes(x=data, y=value, color=name)) +
-  geom_point() +
-  geom_smooth()
+  geom_point(alpha = 0.5) +
+  scale_color_manual(name = "", values = c("grey50", "deepskyblue2")) +
+  xlab("Rok") +
+  ylab("Wartość cechy") +
+  ggtitle("Stężenie PM10 i średnia dobowa temperatura w latach 2015-2019") +
+  labs(caption = "Łukasz Wawrowski - wawrowski.edu.pl") +
+  theme_light() +
+  theme(legend.position = "bottom",
+        plot.caption = element_text(color = "grey80"))
 
 pm10_imgw_std <- select(imgw_pszczyna, data, t2m_mean_daily) %>% 
   inner_join(., select(pm10_pszczyna, data, pm10)) %>% 
   mutate_if(is.numeric, scale) %>% 
-  pivot_longer(-data)
+  pivot_longer(-data) %>% 
+  mutate(name=factor(name, levels = c("pm10", "t2m_mean_daily"), labels = c("PM10", "Temperatura")))
 
 ggplot(pm10_imgw_std, aes(x=data, y=value, color=name)) +
   geom_point(alpha = 0.5) +
-  geom_smooth(se = F, size = 2)
+  # geom_smooth(se = F, size = 2) +
+  scale_color_manual(name = "", values = c("grey50", "deepskyblue2")) +
+  xlab("Rok") +
+  ylab("Standaryzowana wartość cechy") +
+  ggtitle("Stężenie PM10 i średnia dobowa temperatura w latach 2015-2019") +
+  labs(caption = "Łukasz Wawrowski - wawrowski.edu.pl") +
+  theme_light() +
+  theme(legend.position = "bottom",
+        plot.caption = element_text(color = "grey80"))
 
 # iloraz szans
 

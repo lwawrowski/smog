@@ -3,6 +3,10 @@ library(tidyverse)
 load("data/pm10.RData")
 load("data/imgw.RData")
 
+pm10_pszczyna %>% 
+  filter(is.na(pm10)) %>% 
+  count(rok)
+
 # gioś
 pm10_pszczyna %>% 
   filter(!is.na(pm10)) %>% 

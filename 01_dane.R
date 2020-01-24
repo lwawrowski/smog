@@ -1,6 +1,7 @@
 library(tidyverse)
 library(readxl)
 library(lubridate)
+
 # http://powietrze.gios.gov.pl/pjp/archives
 
 pm10_2015 <- read_xlsx("data/pm10_pszczyna.xlsx", sheet = "2015")

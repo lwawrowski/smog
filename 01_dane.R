@@ -12,6 +12,7 @@ pm10_2019 <- read_xlsx("data/pm10_pszczyna.xlsx", sheet = "2019") %>%
   mutate(pm10=as.numeric(str_replace(pm10, ",", ".")))
 
 # http://www.gios.gov.pl/pl/aktualnosci/294-normy-dla-pylow-drobnych-w-polsce
+# http://powietrze.gios.gov.pl/pjp/current
 
 pm10_pszczyna <- union_all(pm10_2015, pm10_2016) %>% 
   union_all(., pm10_2017) %>% 
@@ -27,6 +28,10 @@ pm10_pszczyna <- union_all(pm10_2015, pm10_2016) %>%
          poziom=cut(x = pm10,
                     breaks = c(0,50,200,300,Inf), 
                     labels = c("w normie", "dopuszczalny", "informowania", "alarmowy"), 
+                    ordered_result = T),
+         indeks=cut(x = pm10,
+                    breaks = c(0,20,50,80,110,150,Inf),
+                    labels = c("bardzo dobry", "dobry", "umiarkowany", "dostateczny", "zły", "bardzo zły"),
                     ordered_result = T))
 
 save(pm10_pszczyna, file = "data/pm10.RData")

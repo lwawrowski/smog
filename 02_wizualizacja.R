@@ -21,7 +21,7 @@ pm10_pszczyna %>%
   theme(legend.position = "bottom",
         plot.caption = element_text(color = "grey80"))
 
-# fill with zeros
+# 4 poziomy
 pm10_pszczyna %>% 
   filter(!is.na(pm10)) %>% 
   count(rok, poziom) %>% 
@@ -50,6 +50,40 @@ pm10_pszczyna %>%
   xlab("Poziom") +
   ylab("Rok") +
   ggtitle("Odsetek dni w roku z danym poziomem stężenia pyłu PM10") +
+  labs(caption = "Łukasz Wawrowski - wawrowski.edu.pl") +
+  theme_light() +
+  theme(plot.caption = element_text(color = "grey80"))
+
+# 6 poziomów
+pm10_pszczyna %>% 
+  filter(!is.na(pm10)) %>% 
+  count(rok, indeks) %>% 
+  complete(rok, indeks, fill = list(n = 0)) %>% 
+  ggplot(aes(x = rok, y = n, fill = indeks)) +
+  geom_col(position = "dodge") +
+  geom_text(aes(label=n), position = position_dodge(width = 0.9), vjust = -0.3) +
+  scale_fill_manual(values = c("#57B108", "#B0DD10", "#FFD911", "#E58100", "#E50000", "#990000"), name = "Indeks powietrza") +
+  xlab("Rok") +
+  ylab("Liczba dni") +
+  ggtitle("Liczba dni w roku z danym indeksem stężenia pyłu PM10") +
+  labs(caption = "Łukasz Wawrowski - wawrowski.edu.pl") +
+  theme_light() +
+  theme(legend.position = "bottom",
+        plot.caption = element_text(color = "grey80"))
+
+pm10_pszczyna %>% 
+  filter(!is.na(pm10)) %>% 
+  count(rok, indeks) %>% 
+  complete(rok, indeks, fill = list(n = 0)) %>% 
+  group_by(rok) %>% 
+  mutate(proc=round(n/sum(n)*100)) %>% 
+  ggplot(aes(x = rok, y = proc, fill = indeks)) +
+  geom_col(position = "dodge") +
+  geom_text(aes(label=proc), position = position_dodge(width = 0.9), vjust = -0.3) +
+  scale_fill_manual(values = c("#57B108", "#B0DD10", "#FFD911", "#E58100", "#E50000", "#990000"), name = "Indeks powietrza") +
+  xlab("Rok") +
+  ylab("Odsetek dni") +
+  ggtitle("Odsetek dni w roku z danym indeksem stężenia pyłu PM10") +
   labs(caption = "Łukasz Wawrowski - wawrowski.edu.pl") +
   theme_light() +
   theme(plot.caption = element_text(color = "grey80"))

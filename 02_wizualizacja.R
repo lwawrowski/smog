@@ -7,6 +7,9 @@ pm10_pszczyna %>%
   filter(is.na(pm10)) %>% 
   count(rok)
 
+braki_danych <- pm10_pszczyna %>% 
+  filter(is.na(pm10))
+
 # gioś
 pm10_pszczyna %>% 
   filter(!is.na(pm10)) %>% 

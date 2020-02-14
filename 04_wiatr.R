@@ -18,19 +18,61 @@ pliki_wiatr_kierunek <- str_c(sort(rep(str_c("B00202A_",2015:2019),12)),"_",spri
 
 wiatr_kierunek <- map_df(pliki_wiatr_kierunek, wczytaj_pliki)
 
-wiatr_kierunek <- wiatr_kierunek %>% 
-  select(data_time=X3, kierunek=X4)
+summary(wiatr_kierunek)
 
+wiatr_kierunek <- wiatr_kierunek %>% 
+  select(data_time=X3, kierunek=X4) %>% 
+  mutate(data=as_date(data_time),
+         kierunek8=cut(x=kierunek, breaks = seq(from = 0, to = 360, by = 22.5), 
+                       labels = c("N", "NE", "NE", "E", "E", "SE", "SE", "S", "S", "SW", "SW", "W", "W", "NW", "NW", "N")))
+  
 save(wiatr_kierunek, file="data/wiatr_kierunek.RData")
 
-wiatr_kierunek_dzien <- wiatr_kierunek %>% 
-  mutate(data=as_date(data_time)) %>% 
+# siła wiatru
+
+pliki_wiatr_sila <- str_c(sort(rep(str_c("B00702A_",2015:2019),12)),"_",sprintf("%02d",1:12),".csv")
+
+wiatr_sila <- map_df(pliki_wiatr_sila, wczytaj_pliki)
+
+wiatr_sila <- wiatr_sila %>% 
+  select(data_time=X3, sila=X4)
+
+wiatr_kierunek_sila <- inner_join(wiatr_kierunek, wiatr_sila, by = "data_time")
+
+# dominanta dzienna
+
+wiatr_kierunek_dzien_dom <- wiatr_kierunek_sila %>% 
+  group_by(data,kierunek8) %>% 
+  summarise(n=n(),
+            sila_min=min(sila),
+            sila_sr=mean(sila),
+            sila_med=median(sila),
+            sila_max=max(sila)) %>% 
+  group_by(data) %>% 
+  top_n(1,n) %>% 
+  top_n(1,sila_sr) %>% 
+  ungroup()
+  
+wiatr_kierunek_dzien_med <- wiatr_kierunek_sila %>% 
   group_by(data) %>% 
   summarise(kierunek_min=min(kierunek),
             kierunek_med=median(kierunek),
-            kierunek_max=max(kierunek)) 
+            kierunek_max=max(kierunek)) %>% 
+  mutate(kierunek8=cut(x=kierunek_med, breaks = seq(from = 0, to = 360, by = 22.5), 
+                       labels = c("N", "NE", "NE", "E", "E", "SE", "SE", "S", "S", "SW", "SW", "W", "W", "NW", "NW", "N")))
   
-summary(wiatr_kierunek_dzien)
+table(wiatr_kierunek_dzien_dom$kierunek8);table(wiatr_kierunek_dzien_med$kierunek8)
+table(wiatr_kierunek_dzien_dom$kierunek8, wiatr_kierunek_dzien_med$kierunek8)
 
-ggplot(wiatr_kierunek_dzien, aes(x=data, y=kierunek_med)) +
+ggplot(wiatr_kierunek_dzien_dom, aes(x=data, y=sila_med, color=kierunek8)) +
   geom_point()
+
+# kierunek wiatru a przekroczenia
+
+load("data/pm10.RData")
+
+pm10_wiatr <- inner_join(pm10_pszczyna, wiatr_kierunek_dzien_dom, by="data")
+
+table(pm10_wiatr$poziom, pm10_wiatr$kierunek8)
+
+table(pm10_wiatr$indeks, pm10_wiatr$kierunek8)

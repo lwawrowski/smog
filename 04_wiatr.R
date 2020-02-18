@@ -98,6 +98,19 @@ poziom_wiatr <- pm10_wiatr %>%
 treemap::treemap(poziom_wiatr, index = c("poziom", "kierunek8"), vSize = "n")
 
 pm10_wiatr %>% 
+  filter(!is.na(pm10)) %>% 
   count(indeks, kierunek8) %>% 
   group_by(indeks) %>% 
-  mutate(proc=n/n())
+  mutate(proc=n/sum(n)) %>% 
+  ggplot(aes(x=indeks, y=proc, fill=kierunek8)) +
+  geom_col() +
+  coord_flip()
+
+pm10_wiatr %>% 
+  filter(!is.na(pm10)) %>% 
+  count(kwartal, kierunek8) %>% 
+  group_by(kwartal) %>% 
+  mutate(proc=n/sum(n)) %>% 
+  ggplot(aes(x=kwartal, y=proc, fill=kierunek8)) +
+  geom_col() +
+  coord_flip()
